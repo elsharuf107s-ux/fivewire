@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fivewire</title>
+<style>
+:root{--bg:#0b0c0e;--panel:#141518;--line:#24272b;--text:#e6e8eb;--mute:#8b8f96;--up:#26c6a0;--down:#e8355a;--accent:#f0b429;--btc:#f7931a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:16px;padding:12px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;font-size:18px;letter-spacing:.5px}
+.logo span{color:var(--accent)}
+.assets{display:flex;gap:6px}
+.assets button{background:none;border:1px solid var(--line);color:var(--mute);padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600}
+.assets button.on{color:var(--text);border-color:var(--accent)}
+.bal{margin-left:auto;display:flex;align-items:center;gap:10px}
+.bal b{font-size:16px}
+.tag{font-size:10px;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.btn{background:var(--accent);color:#111;border:0;border-radius:6px;padding:7px 12px;font-weight:700;cursor:pointer}
+.btn.ghost{background:none;color:var(--text);border:1px solid var(--line)}
+main{display:grid;grid-template-columns:1fr 340px;gap:16px;padding:16px 20px;max-width:1300px;margin:auto}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+h1{font-size:20px;margin:0 0 4px}
+.sub{color:var(--mute);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat .k{color:var(--mute);font-size:11px;text-transform:uppercase}
+.stat .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+canvas{width:100%;height:640px;display:block;border-radius:6px;cursor:crosshair}
+@media(max-width:600px){canvas{height:500px}}
+.tf{display:flex;gap:16px;padding:4px 2px 8px;font-size:12px}
+.tf button{background:none;border:0;color:var(--mute);cursor:pointer;padding:2px 0;font-weight:600}
+.tf button.on{color:#2196f3;border-bottom:2px solid #2196f3}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.side{border:2px solid var(--line);background:#0b0e13;color:var(--text);border-radius:8px;padding:12px;cursor:pointer;font-weight:700;font-size:15px}
+.side.up.on{border-color:var(--up);background:#2fbf7122}
+.side.down.on{border-color:var(--down);background:#e5534b22}
+.tabs{display:flex;gap:14px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.tabs button{background:none;border:0;color:var(--mute);padding:6px 0;cursor:pointer;font-weight:700;border-bottom:2px solid transparent}
+.tabs button.on{color:var(--text);border-color:var(--accent)}
+input{width:100%;background:#0b0e13;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px;font-size:18px}
+.quick{display:flex;gap:6px;margin:6px 0}
+.quick button{flex:1;background:#0b0e13;border:1px solid var(--line);color:var(--mute);border-radius:6px;padding:5px;cursor:pointer}
+.row{display:flex;justify-content:space-between;color:var(--mute);margin:4px 0}
+.row b{color:var(--text)}
+.go{width:100%;padding:12px;font-size:16px;margin-top:8px}
+.go:disabled{opacity:.4;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:5px 4px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600;font-size:11px;text-transform:uppercase}
+.u{color:var(--up)}.d{color:var(--down)}.m{color:var(--mute)}
+.book{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.err{background:#e5534b22;border:1px solid var(--down);padding:10px;border-radius:8px;margin-bottom:10px;display:none}
+.msg{min-height:18px;margin-top:6px;font-size:12px}
+.mp{border:1px solid var(--line);border-left:4px solid var(--up);border-radius:8px;padding:10px;margin-top:10px;font-size:12px}
+.mp.dn{border-left-color:var(--down)}
+.mp-top{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.mp-pc{margin-left:auto;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.mp-bar{height:4px;background:var(--line);border-radius:2px;margin:8px 0;overflow:hidden}
+.mp-bar i{display:block;height:100%;background:currentColor}
+.sellbtn{background:var(--down);color:#fff;padding:4px 10px}
+.mp .sellbtn{width:100%;padding:8px}
+.section{margin-top:16px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.count{font-size:56px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;text-align:right}
+.count small{display:block;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase}
+.count.warn{color:var(--accent)}.count.hot{color:var(--down)}
+@media(max-width:600px){.count{font-size:40px}}
+.oneclick{display:flex;align-items:center;gap:8px;margin:4px 0 8px;color:var(--mute);font-size:12px;cursor:pointer}
+.oneclick input{width:auto}
+.oneclick.on{color:var(--accent);font-weight:700}
+.mnav{display:none}
+.qrows{display:block}
+
+/* ---------- phone: everything on one screen, no page scroll ---------- */
+@media (max-width:700px){
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+  body{display:flex;flex-direction:column;height:100dvh;font-size:13px;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+  header{flex-wrap:nowrap;gap:8px;padding:6px 10px;overflow-x:auto}
+  .logo{font-size:15px}
+  .assets{gap:4px}.assets button{padding:4px 7px;font-size:12px}
+  .bal{gap:6px}.bal .sub,.bal .tag{display:none}.bal b{font-size:14px}
+  .bal .btn{padding:5px 8px;font-size:12px}
+  main{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;padding:6px 8px}
+  main>section{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}
+  .card{padding:8px;border-radius:8px}
+  .section{margin-top:0}
+  .err{margin:0;padding:6px;font-size:11px}
+  /* round strip */
+  #chartCard{flex:1;min-height:0;display:flex;flex-direction:column}
+  .head{align-items:center}
+  .head>div:first-child{min-width:0}
+  h1{font-size:13px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #window{display:none}
+  .count{font-size:26px}.count small{font-size:9px}
+  .stats{grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0 2px}
+  .stat .k{font-size:9px;letter-spacing:.02em}
+  .stat .v{font-size:13px}
+  .tf{padding:2px 2px 4px}
+  canvas{flex:1;min-height:0;height:auto}
+  /* middle view switcher */
+  .mnav{display:flex;gap:4px}
+  .mnav button{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--mute);border-radius:6px;padding:6px 0;font-weight:700;font-size:12px}
+  .mnav button.on{color:var(--text);border-color:var(--accent)}
+  #listCard{flex:1;min-height:0;overflow:auto;display:none}
+  #listCard .tabs{display:none}
+  body.v-list #chartCard{display:none}
+  body.v-list #listCard{display:block}
+  #statsCard{display:none}
+  body.v-pos #statsCard{display:block}
+  #listCard table{font-size:11px}
+  #listCard th,#listCard td{padding:4px 3px}
+  .book{gap:6px}
+  /* trade panel pinned at the bottom */
+  aside{flex:none}
+  aside>.card:first-child{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center}
+  aside .tabs#mode{grid-column:1/-1;margin:0;gap:12px}
+  aside .tabs#mode button{padding:2px 0;font-size:12px}
+  .sides{grid-column:1/-1;margin:0;gap:6px}
+  .side{padding:9px;font-size:14px}
+  .oneclick{grid-column:1/-1;margin:0;font-size:11px}
+  #amtLabel{display:none}
+  #amt{padding:7px 8px;font-size:16px}
+  .quick{margin:0;gap:4px}.quick button{padding:7px 0;font-size:12px}
+  .qrows{grid-column:1/-1;display:flex;gap:10px;font-size:11px}
+  .qrows .row{margin:0;gap:4px}
+  .go{grid-column:1/-1;margin:0;padding:11px}
+  .msg{grid-column:1/-1;margin:0;min-height:0;font-size:11px}
+  .msg:empty{display:none}
+  #mypos{grid-column:1/-1}
+  .mp{margin-top:0;padding:6px 8px;font-size:11px}
+  .mp-top{margin-bottom:2px}.mp-pc{font-size:18px}
+  .mp-bar{margin:4px 0}
+  .mp .sellbtn{padding:7px}
+}
+@media (max-width:700px) and (max-height:640px){
+  .oneclick,#mode{display:none!important}
+  .stats{margin:4px 0 0}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Five<span>wire</span></div>
+  <div class="assets" id="assets"></div>
+  <div class="bal">
+    <span class="sub">Cash</span><b id="cash">$0.00</b><span class="tag">paper</span>
+    <button class="btn" id="depositBtn">Deposit</button>
+    <button class="btn ghost" id="resetBtn" title="Wipe balance, positions and history">Reset</button>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="err" id="err"></div>
+    <div class="card" id="chartCard">
+      <div class="head">
+        <div><h1 id="title">Loading…</h1><div class="sub" id="window"></div></div>
+        <div class="count" id="count"><small>closes in</small><span id="countv">–:––</span></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">Price to beat</div><div class="v" id="ptb">–</div></div>
+        <div class="stat"><div class="k">Current price</div><div class="v" id="px">–</div></div>
+        <div class="stat"><div class="k">Up chance</div><div class="v u" id="upc">–</div></div>
+        <div class="stat"><div class="k">Down chance</div><div class="v d" id="dnc">–</div></div>
+      </div>
+      <div class="tf" id="tf"></div>
+      <canvas id="chart"></canvas>
+    </div>
+
+
+    <div class="mnav" id="mnav"><button class="on" data-v="chart">Chart</button><button data-v="pos">Positions</button><button data-v="hist">History</button><button data-v="book">Book</button></div>
+    <div class="card section" id="listCard">
+      <div class="tabs"><button class="on" data-t="pos">Positions</button><button data-t="hist">History</button><button data-t="book">Order book</button></div>
+      <div id="t-pos"></div>
+      <div id="t-hist" hidden></div>
+      <div id="t-book" hidden class="book"></div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="card">
+      <div class="tabs" id="mode"><button class="on" data-m="buy">Buy</button><button data-m="sell">Sell</button></div>
+      <div class="sides">
+        <button class="side up on" data-s="0">Up <span id="upAsk">–</span></button>
+        <button class="side down" data-s="1">Down <span id="downAsk">–</span></button>
+      </div>
+      <label class="oneclick" id="ocLabel"><input type="checkbox" id="oneclick"> One-click: tapping Up/Down trades the amount below instantly</label>
+      <label class="sub" id="amtLabel">Amount ($)</label>
+      <input id="amt" type="number" min="0" step="1" value="10">
+      <div class="quick" id="quick"></div>
+      <div class="qrows">
+        <div class="row"><span>Avg price</span><b id="q-avg">–</b></div>
+        <div class="row"><span id="q-k1">Shares</span><b id="q-sh">–</b></div>
+        <div class="row"><span id="q-k2">Payout if win</span><b id="q-win">–</b></div>
+      </div>
+      <button class="btn go" id="go">Buy Up</button>
+      <div class="msg" id="msg"></div>
+      <div id="mypos"></div>
+    </div>
+    <div class="card section" id="statsCard">
+      <div class="sub">Your stats</div>
+      <div class="row"><span>Settled trades</span><b id="s-n">0</b></div>
+      <div class="row"><span>Win rate</span><b id="s-wr">–</b></div>
+      <div class="row"><span>Total P&amp;L</span><b id="s-pnl">$0.00</b></div>
+      <div class="row"><span>Deposited</span><b id="s-dep">$0.00</b></div>
+    </div>
+  </aside>
+</main>
+
+<script>
+// ---------- config ----------
+const ASSETS = { BTC: 'btc', ETH: 'eth', SOL: 'sol', XRP: 'xrp' };
+const WIN = 300;                      // 5-minute rounds
+// Call Polymarket directly (its APIs allow browser calls), so the page works on any static host.
+const DIRECT = { gamma: 'https://gamma-api.polymarket.com', clob: 'https://clob.polymarket.com' };
+const API = null;
+const $ = id => document.getElementById(id);
+const fmt$ = (n, d = 2) => (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtC = p => p == null ? '–' : (p * 100).toFixed(1) + '¢';
+const pct = p => p == null ? '–' : (p * 100).toFixed(1) + '%';
+
+// ---------- paper account (localStorage) ----------
+const KEY = 'fivewire-v1';
+let acct;
+try { acct = JSON.parse(localStorage.getItem(KEY)); } catch {}
+acct = acct || { cash: 0, deposited: 0, positions: [], history: [] };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(acct)); } catch {} };
+
+// ---------- live state ----------
+let asset = 'BTC';
+let cur = null;          // { slug, start, end, title, tokens:[up,down], ptb }
+let ticks = [];          // [{t, p}] underlying price, ~1/s
+let candles = [];        // [{t, o, h, l, c}] oldest → newest
+let gran = 60;           // candle size in seconds
+let view = 40;           // candles on screen (mouse wheel zooms)
+let hover = null;        // {x, y} crosshair position
+let books = [null, null];
+let side = 0, mode = 'buy';
+let ws = null;
+
+async function api(kind, path) {
+  const r = await fetch(API ? `${API}/${kind}${path}` : DIRECT[kind] + path);
+  const j = await r.json().catch(() => null);
+  if (!r.ok) throw new Error((j && (j.error || j.message)) || `HTTP ${r.status}`);
+  return j;
+}
+function showErr(e) { const el = $('err'); el.style.display = e ? 'block' : 'none'; if (e) el.textContent = 'Live data problem: ' + (e.message || e); }
+
+// ---------- round lookup ----------
+const slugFor = (a, start) => `${ASSETS[a]}-updown-5m-${start}`;
+const parse = v => typeof v === 'string' ? JSON.parse(v) : v;
+
+async function loadEvent(slug) {
+  const ev = (await api('gamma', `/events?slug=${slug}`))[0];
+  if (!ev) return null;
+  const mk = ev.markets[0];
+  return { ev, mk, tokens: parse(mk.clobTokenIds), outcomes: parse(mk.outcomes), prices: parse(mk.outcomePrices).map(Number) };
+}
+
+// The round comes from the clock, so price, chart and countdown work even if Polymarket is unreachable.
+function newRound() {
+  const start = Math.floor(Date.now() / 1000 / WIN) * WIN;
+  const slug = slugFor(asset, start);
+  cur = { slug, start, end: start + WIN, title: `${asset} Up or Down · 5 min`, tokens: null, ptb: null, ptbSource: null };
+  books = [null, null];
+  fallbackPtb(cur);
+  $('title').textContent = cur.title;
+  const t = d => new Date(d * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  $('window').textContent = `${t(cur.start)} – ${t(cur.end)} · ${slug}`;
+}
+
+// Attach Polymarket's market (tokens, title, official price to beat) to the current round.
+async function attachMarket() {
+  const round = cur;
+  const e = await loadEvent(round.slug);
+  if (round !== cur) return;
+  if (!e) throw new Error(`Polymarket has no market for ${round.slug} yet`);
+  round.tokens = /down/i.test(e.outcomes[0]) ? [e.tokens[1], e.tokens[0]] : e.tokens; // index 0 = Up
+  round.title = e.ev.title; $('title').textContent = round.title;
+  const ptb = Number(e.ev.eventMetadata?.priceToBeat);
+  if (ptb) { round.ptb = ptb; round.ptbSource = 'Polymarket'; }
+}
+
+// Polymarket resolves on Chainlink's price at the window start. If the API does not expose it,
+// fall back to Coinbase's 1-minute candle open (close, not exact).
+async function fallbackPtb(round) {
+  try {
+    const iso = s => new Date(s * 1000).toISOString();
+    const c = await fetch(`https://api.exchange.coinbase.com/products/${asset}-USD/candles?granularity=60&start=${iso(round.start)}&end=${iso(round.start + 60)}`).then(r => r.json());
+    const row = c.find(r => r[0] === round.start) || c[c.length - 1];
+    if (row && !round.ptb) { round.ptb = row[3]; round.ptbSource = 'Coinbase est.'; }
+    else if (!row && round === cur) setTimeout(() => fallbackPtb(round), 5000); // candle not published yet
+  } catch {}
+}
+
+// ---------- underlying price: Coinbase websocket ----------
+function connectPrice() {
+  if (ws) ws.close();
+  ticks = [];
+  ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
+  const product = `${asset}-USD`;
+  ws.onopen = () => ws.send(JSON.stringify({ type: 'subscribe', product_ids: [product], channels: ['ticker'] }));
+  ws.onmessage = m => {
+    const d = JSON.parse(m.data);
+    if (d.type !== 'ticker' || d.product_id !== product) return;
+    const t = Date.now() / 1000, p = Number(d.price);
+    const last = ticks[ticks.length - 1];
+    if (last && t - last.t < 0.5) last.p = p; else ticks.push({ t, p });
+    if (ticks.length > 1200) ticks.shift();
+    addTick(t, p);
+  };
+  ws.onclose = () => setTimeout(() => { if (ws && ws.readyState === 3) connectPrice(); }, 2000);
+}
+
+// ---------- candles: Coinbase history + live ticks ----------
+async function loadCandles() {
+  const a = asset, g = gran;
+  try {
+    const rows = await fetch(`https://api.exchange.coinbase.com/products/${a}-USD/candles?granularity=${g}`).then(r => r.json());
+    if (a !== asset || g !== gran || !Array.isArray(rows)) return;
+    const fresh = rows.map(r => ({ t: r[0], l: r[1], h: r[2], o: r[3], c: r[4] })).reverse();
+    const last = candles[candles.length - 1], fl = fresh[fresh.length - 1];
+    if (last && fl && last.t > fl.t) fresh.push(last);
+    else if (last && fl && last.t === fl.t) { fl.h = Math.max(fl.h, last.h); fl.l = Math.min(fl.l, last.l); fl.c = last.c; }
+    candles = fresh;
+  } catch {}
+}
+function addTick(t, p) {
+  const b = Math.floor(t / gran) * gran, last = candles[candles.length - 1];
+  if (!last) return;
+  if (last.t === b) { last.h = Math.max(last.h, p); last.l = Math.min(last.l, p); last.c = p; }
+  else if (b > last.t) candles.push({ t: b, o: p, h: p, l: p, c: p });
+}
+
+// ---------- order books ----------
+async function pollBooks() {
+  if (!cur) return;
+  const round = cur;
+  try {
+    if (!round.tokens) await attachMarket();
+    if (round !== cur) return;
+    const [a, b] = await Promise.all(round.tokens.map(id => api('clob', `/book?token_id=${id}`)));
+    if (round !== cur) return;
+    books = [a, b].map(bk => ({
+      bids: (bk.bids || []).map(l => ({ p: +l.price, s: +l.size })).sort((x, y) => y.p - x.p),
+      asks: (bk.asks || []).map(l => ({ p: +l.price, s: +l.size })).sort((x, y) => x.p - y.p),
+    }));
+    showErr(null);
+  } catch (e) { showErr(e); }
+}
+const mid = bk => bk && bk.bids[0] && bk.asks[0] ? (bk.bids[0].p + bk.asks[0].p) / 2 : null;
+// market Up chance = Up midpoint (falls back to last trade-free estimate from Down)
+function marketUp() {
+  const u = mid(books[0]), d = mid(books[1]);
+  if (u != null) return u;
+  return d != null ? 1 - d : null;
+}
+
+// ---------- indicators ----------
+function priceAt(secAgo) {
+  const t = Date.now() / 1000 - secAgo;
+  for (let i = ticks.length - 1; i >= 0; i--) if (ticks[i].t <= t) return ticks[i].p;
+  return null;
+}
+// Same set as the Webull screenshot: BB(20,2), EMA 21/34/50, MACD(2,7,13), ADX & DI(15,15), RSI(7)
+const ema = (v, n) => { const k = 2 / (n + 1), o = []; v.forEach((x, i) => o.push(i ? o[i - 1] + k * (x - o[i - 1]) : x)); return o; };
+const rma = (v, n) => { const o = []; v.forEach((x, i) => o.push(i ? o[i - 1] + (x - o[i - 1]) / n : x)); return o; };
+function indicators(C) {
+  const c = C.map(x => x.c);
+  const bb = c.map((_, i) => {
+    if (i < 19) return null;
+    const s = c.slice(i - 19, i + 1), m = s.reduce((a, b) => a + b) / 20;
+    const sd = Math.sqrt(s.reduce((a, b) => a + (b - m) ** 2, 0) / 20);
+    return { m, u: m + 2 * sd, l: m - 2 * sd };
+  });
+  const f = ema(c, 2), sl = ema(c, 7), macd = f.map((x, i) => x - sl[i]), sig = ema(macd, 13);
+  const tr = [], pdm = [], ndm = [];
+  C.forEach((x, i) => {
+    const p = C[i - 1];
+    if (!p) { tr.push(x.h - x.l); pdm.push(0); ndm.push(0); return; }
+    const up = x.h - p.h, dn = p.l - x.l;
+    tr.push(Math.max(x.h - x.l, Math.abs(x.h - p.c), Math.abs(x.l - p.c)));
+    pdm.push(up > dn && up > 0 ? up : 0); ndm.push(dn > up && dn > 0 ? dn : 0);
+  });
+  const atr = rma(tr, 15), di = v => rma(v, 15).map((x, i) => atr[i] ? 100 * x / atr[i] : 0);
+  const pdi = di(pdm), ndi = di(ndm);
+  const adx = rma(pdi.map((x, i) => x + ndi[i] ? 100 * Math.abs(x - ndi[i]) / (x + ndi[i]) : 0), 15);
+  const ch = c.map((x, i) => i ? x - c[i - 1] : 0), ag = rma(ch.map(d => Math.max(d, 0)), 7), al = rma(ch.map(d => Math.max(-d, 0)), 7);
+  return {
+    bb, e21: ema(c, 21), e34: ema(c, 34), e50: ema(c, 50),
+    macd, sig, hist: macd.map((x, i) => x - sig[i]), pdi, ndi, adx,
+    rsi: ag.map((g, i) => al[i] ? 100 - 100 / (1 + g / al[i]) : 100),
+  };
+}
+
+// ---------- order simulation (walks the live book) ----------
+function simBuy(bk, dollars) {
+  let left = dollars, sh = 0;
+  for (const l of bk?.asks || []) { const cost = l.p * l.s; if (cost >= left) { sh += left / l.p; left = 0; break; } sh += l.s; left -= cost; }
+  return { spent: dollars - left, sh, avg: sh ? (dollars - left) / sh : null, full: left < 1e-9 };
+}
+function simSell(bk, shares) {
+  let left = shares, got = 0;
+  for (const l of bk?.bids || []) { const q = Math.min(l.s, left); got += q * l.p; left -= q; if (left <= 0) break; }
+  return { sold: shares - left, got, avg: shares - left ? got / (shares - left) : null, full: left < 1e-9 };
+}
+
+function trade() {
+  const n = Number($('amt').value);
+  const bk = books[side], name = side ? 'Down' : 'Up';
+  const msg = t => $('msg').textContent = t;
+  if (!cur || !(n > 0)) return msg('Enter an amount.');
+  if (Date.now() / 1000 >= cur.end) return msg('Round closed. Wait for the next one.');
+  if (!books[side]) return msg('No live Polymarket prices yet, so trading is paused (see the red box).');
+  if (mode === 'buy') {
+    if (n > acct.cash) return msg('Not enough cash. Hit Deposit.');
+    const r = simBuy(bk, n);
+    if (!r.sh) return msg('No sellers in the book right now.');
+    acct.cash -= r.spent;
+    let pos = acct.positions.find(p => p.slug === cur.slug && p.side === side);
+    if (!pos) acct.positions.push(pos = { slug: cur.slug, title: cur.title, asset, side, start: cur.start, end: cur.end, ptb: cur.ptb, shares: 0, cost: 0 });
+    pos.shares += r.sh; pos.cost += r.spent;
+    msg(`Bought ${r.sh.toFixed(2)} ${name} @ ${fmtC(r.avg)}${r.full ? '' : ' (partial fill, book too thin)'}`);
+  } else {
+    const pos = acct.positions.find(p => p.slug === cur.slug && p.side === side);
+    if (!pos) return msg(`No ${name} shares to sell.`);
+    return msg(sellPos(pos, n));
+  }
+  save(); renderAccount();
+}
+
+// Sell shares of an open position at the live bids. Works any time before the round ends.
+function sellPos(pos, shares) {
+  const name = pos.side ? 'Down' : 'Up';
+  if (Date.now() / 1000 >= pos.end) return 'Round closed: waiting for the result.';
+  const bk = cur && pos.slug === cur.slug ? books[pos.side] : null;
+  if (!bk) return 'No live prices for that round (switch back to its asset).';
+  const r = simSell(bk, Math.min(shares, pos.shares));
+  if (!r.sold) return 'No buyers in the book right now.';
+  const costPart = pos.cost * (r.sold / pos.shares);
+  acct.cash += r.got;
+  acct.history.unshift({ title: pos.title, side: pos.side, shares: r.sold, cost: costPart, ret: r.got, how: 'Sold', at: Date.now() });
+  pos.shares -= r.sold; pos.cost -= costPart;
+  if (pos.shares < 1e-6) acct.positions.splice(acct.positions.indexOf(pos), 1);
+  save(); renderAccount(); renderMyPos();
+  const pnl = r.got - costPart;
+  return `Sold ${r.sold.toFixed(2)} ${name} @ ${fmtC(r.avg)} for ${fmt$(r.got)} (${pnl >= 0 ? '+' : ''}${fmt$(pnl)})`;
+}
+
+// Live numbers for a position: price now (best bid), what selling all would pay, P&L and %.
+function liveVal(p) {
+  const bk = cur && p.slug === cur.slug ? books[p.side] : null;
+  if (!bk || !bk.bids[0] || Date.now() / 1000 >= p.end) return null;
+  const val = simSell(bk, p.shares).got, pnl = val - p.cost;
+  return { now: bk.bids[0].p, val, pnl, pc: p.cost ? pnl / p.cost : 0 };
+}
+const sgn = v => (v >= 0 ? '+' : '') ;
+
+// Big live card under the trade button for this round's positions.
+function renderMyPos() {
+  const el = $('mypos'), mine = acct.positions.filter(p => cur && p.slug === cur.slug);
+  if (!mine.length) { el.innerHTML = ''; return; }
+  el.innerHTML = mine.map(p => {
+    const i = acct.positions.indexOf(p), lv = liveVal(p), avg = p.cost / p.shares, c = lv ? (lv.pnl >= 0 ? 'u' : 'd') : 'm';
+    const w = lv ? Math.min(100, Math.abs(lv.pc) * 100) : 0;
+    return `<div class="mp ${p.side ? 'dn' : 'up'}">
+      <div class="mp-top"><b class="${p.side ? 'd' : 'u'}">${p.side ? 'DOWN' : 'UP'}</b> <span class="m">${p.shares.toFixed(2)} sh</span>
+        <span class="mp-pc ${c}">${lv ? sgn(lv.pc) + (lv.pc * 100).toFixed(1) + '%' : '–'}</span></div>
+      <div class="m">${fmtC(avg)} → <span class="${c}">${lv ? fmtC(lv.now) : '–'}</span> · value ${lv ? fmt$(lv.val) : '–'} · <span class="${c}">${lv ? sgn(lv.pnl) + fmt$(lv.pnl) : ''}</span></div>
+      <div class="mp-bar"><i class="${c}" style="width:${w}%"></i></div>
+      ${lv ? `<button class="btn sellbtn" data-i="${i}">Sell all now · ${fmt$(lv.val)}</button>` : '<div class="m">Round over: waiting for result…</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ---------- settlement: official result first, local fallback ----------
+async function settle() {
+  const now = Date.now() / 1000;
+  for (const pos of acct.positions.filter(p => p.end <= now)) {
+    let win = null, how = 'Resolved';
+    try {
+      const e = await loadEvent(pos.slug);
+      if (e && e.mk.closed && e.prices.some(p => p === 1)) {
+        const upIdx = /down/i.test(e.outcomes[0]) ? 1 : 0;
+        win = e.prices[upIdx] === 1 ? 0 : 1;
+      }
+    } catch {}
+    if (win == null && now > pos.end + 180 && pos.ptb) { // official result slow: use our own price
+      const fin = pos.finalPx; if (fin) { win = fin >= pos.ptb ? 0 : 1; how = 'Resolved (local est.)'; }
+    }
+    if (win == null) continue;
+    const ret = win === pos.side ? pos.shares : 0;
+    acct.cash += ret;
+    acct.history.unshift({ title: pos.title, side: pos.side, shares: pos.shares, cost: pos.cost, ret, how, at: Date.now() });
+    acct.positions.splice(acct.positions.indexOf(pos), 1);
+  }
+  save(); renderAccount();
+}
+
+// ---------- rendering ----------
+function renderAccount() {
+  $('cash').textContent = fmt$(acct.cash);
+  const posRows = acct.positions.map(p => {
+    const lv = liveVal(p), c = lv ? (lv.pnl >= 0 ? 'u' : 'd') : 'm';
+    const st = Date.now() / 1000 >= p.end ? '<span class="m">awaiting result</span>' : lv == null ? '–' : `${fmt$(lv.val)} <span class="${c}">${sgn(lv.pnl)}${fmt$(lv.pnl)} (${sgn(lv.pc)}${(lv.pc * 100).toFixed(1)}%)</span>`;
+    const btn = lv ? `<button class="btn sellbtn" data-i="${acct.positions.indexOf(p)}">Sell</button>` : '';
+    return `<tr><td>${p.title}</td><td class="${p.side ? 'd' : 'u'}">${p.side ? 'Down' : 'Up'}</td><td>${p.shares.toFixed(2)}</td><td>${fmtC(p.cost / p.shares)}</td><td class="${c}">${lv ? fmtC(lv.now) : '–'}</td><td>${fmt$(p.cost)}</td><td>${st}</td><td>${btn}</td></tr>`;
+  }).join('');
+  $('t-pos').innerHTML = posRows ? `<table><tr><th>Market</th><th>Side</th><th>Shares</th><th>Avg</th><th>Now</th><th>Cost</th><th>Value / P&amp;L</th><th></th></tr>${posRows}</table>` : '<div class="m">No open positions.</div>';
+  const h = acct.history.slice(0, 100).map(x => {
+    const pnl = x.ret - x.cost;
+    return `<tr><td>${new Date(x.at).toLocaleTimeString()}</td><td>${x.title}</td><td class="${x.side ? 'd' : 'u'}">${x.side ? 'Down' : 'Up'}</td><td>${x.how}</td><td>${fmt$(x.cost)}</td><td>${fmt$(x.ret)}</td><td class="${pnl >= 0 ? 'u' : 'd'}">${fmt$(pnl)}</td></tr>`;
+  }).join('');
+  $('t-hist').innerHTML = h ? `<table><tr><th>Time</th><th>Market</th><th>Side</th><th>How</th><th>Cost</th><th>Return</th><th>P&amp;L</th></tr>${h}</table>` : '<div class="m">No settled trades yet.</div>';
+  const n = acct.history.length, wins = acct.history.filter(x => x.ret > x.cost).length;
+  const pnl = acct.history.reduce((s, x) => s + x.ret - x.cost, 0);
+  $('s-n').textContent = n; $('s-wr').textContent = n ? (wins / n * 100).toFixed(0) + '%' : '–';
+  $('s-pnl').textContent = fmt$(pnl); $('s-pnl').className = pnl >= 0 ? 'u' : 'd';
+  $('s-dep').textContent = fmt$(acct.deposited);
+}
+
+function renderQuote() {
+  const n = Number($('amt').value) || 0, bk = books[side];
+  $('upAsk').textContent = fmtC(books[0]?.asks[0]?.p ?? null);
+  $('downAsk').textContent = fmtC(books[1]?.asks[0]?.p ?? null);
+  const name = side ? 'Down' : 'Up';
+  $('go').textContent = `${mode === 'buy' ? 'Buy' : 'Sell'} ${name}`;
+  $('go').style.background = side ? 'var(--down)' : 'var(--up)';
+  if (mode === 'buy') {
+    const r = simBuy(bk, n);
+    $('q-avg').textContent = fmtC(r.avg); $('q-k1').textContent = 'Shares'; $('q-sh').textContent = r.sh ? r.sh.toFixed(2) : '–';
+    $('q-k2').textContent = 'Payout if win'; $('q-win').textContent = r.sh ? `${fmt$(r.sh)} (+${fmt$(r.sh - r.spent)})` : '–';
+  } else {
+    const r = simSell(bk, n);
+    $('q-avg').textContent = fmtC(r.avg); $('q-k1').textContent = 'Shares sold'; $('q-sh').textContent = r.sold ? r.sold.toFixed(2) : '–';
+    $('q-k2').textContent = 'You receive'; $('q-win').textContent = r.got ? fmt$(r.got) : '–';
+  }
+}
+
+function renderBook() {
+  const col = (bk, name) => {
+    if (!bk) return `<div class="m">${name}: loading…</div>`;
+    const a = bk.asks.slice(0, 8).reverse().map(l => `<tr><td class="d">${fmtC(l.p)}</td><td>${l.s.toFixed(0)}</td><td>${fmt$(l.p * l.s)}</td></tr>`).join('');
+    const b = bk.bids.slice(0, 8).map(l => `<tr><td class="u">${fmtC(l.p)}</td><td>${l.s.toFixed(0)}</td><td>${fmt$(l.p * l.s)}</td></tr>`).join('');
+    return `<div><b>${name}</b><table><tr><th>Price</th><th>Shares</th><th>Total</th></tr>${a}<tr><td colspan="3" class="m">spread ${bk.asks[0] && bk.bids[0] ? fmtC(bk.asks[0].p - bk.bids[0].p) : '–'}</td></tr>${b}</table></div>`;
+  };
+  $('t-book').innerHTML = col(books[0], 'Up') + col(books[1], 'Down');
+}
+
+// ---------- Webull-style chart: candles + BB + EMAs, then MACD / ADX&DI / RSI panes ----------
+const COL = {
+  bg: '#131416', grid: '#202327', sep: '#2c3036', axis: '#8b8f96', up: '#26c6a0', down: '#e8355a',
+  bb: '#2fbfa0', basis: '#4a90c8', e21: '#c08cff', e34: '#7f9cf5', e50: '#e53935', last: '#2196f3', ptb: '#f0b429',
+  macd: '#f0a030', sig: '#2f8fe0', h1: '#2bd3a0', h2: '#1c6b5a', d1: '#e8355a', d2: '#7a2236',
+  pdi: '#3fae5a', ndi: '#d9473f', adx: '#e8e8e8', hl: '#22d34a', rsi: '#3fb8e0',
+};
+const nice = r => { const p = 10 ** Math.floor(Math.log10(r || 1)), f = r / p; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p; };
+const ink = c => { const n = parseInt(c.slice(1), 16); return ((n >> 16) * 299 + (n >> 8 & 255) * 587 + (n & 255) * 114) / 1000 > 150 ? '#111' : '#fff'; };
+const f = (v, d = 2) => v == null || !isFinite(v) ? '–' : v.toFixed(d);
+
+function drawChart() {
+  const cv = $('chart'), dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.fillStyle = COL.bg; g.fillRect(0, 0, W, H); g.font = '11px system-ui'; g.textBaseline = 'middle'; g.textAlign = 'left';
+  if (candles.length < 2) { g.fillStyle = COL.axis; g.fillText('Loading candles…', 12, 20); return; }
+
+  const I = indicators(candles), N = candles.length, n = Math.min(view, N), s0 = N - n, L = N - 1;
+  const AX = 70, TB = 22, PW = W - AX, PH = H - TB, cw = PW / n;
+  const X = i => (i - s0 + 0.5) * cw;
+  const vis = a => a.slice(s0).filter(v => v != null && isFinite(v));
+  const hv = hover && hover.x < PW && hover.y < PH ? Math.min(L, s0 + Math.max(0, Math.floor(hover.x / cw))) : null;
+  const j = hv ?? L, dec = candles[L].c > 100 ? 2 : 4;
+  const ptbOn = cur?.ptb && Math.abs(cur.ptb / candles[L].c - 1) < 0.02;
+  const mk = (y0, h, lo, hi, top) => {
+    if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
+    return { y0, h, lo, hi, top, Y: v => y0 + top + (hi - v) / (hi - lo) * (h - top - 6), V: y => hi - (y - y0 - top) / (h - top - 6) * (hi - lo) };
+  };
+  const span = (a, p) => { const lo = Math.min(...a), hi = Math.max(...a), d = (hi - lo) * p; return [lo - d, hi + d]; };
+
+  const mv = candles.slice(s0).flatMap(x => [x.h, x.l]).concat(I.bb.slice(s0).filter(Boolean).flatMap(b => [b.u, b.l]), vis(I.e21), vis(I.e34), vis(I.e50), ptbOn ? [cur.ptb] : []);
+  const M = mk(0, PH * 0.52, ...span(mv, 0.06), 40);
+  const MA = mk(PH * 0.52, PH * 0.16, ...span(vis(I.hist).concat(vis(I.macd), vis(I.sig), [0]), 0.08), 18);
+  const AD = mk(PH * 0.68, PH * 0.16, ...span(vis(I.pdi).concat(vis(I.ndi), vis(I.adx), [20]), 0.08), 18);
+  const rv = vis(I.rsi), RS = mk(PH * 0.84, PH * 0.16, Math.min(20, ...rv), Math.max(80, ...rv), 18);
+  const panes = [M, MA, AD, RS];
+
+  // grid + axes
+  g.strokeStyle = COL.grid; g.lineWidth = 1; g.fillStyle = COL.axis; g.textAlign = 'center';
+  const step = Math.max(1, Math.ceil(80 / cw));
+  for (let i = s0; i < N; i++) if (Math.floor(candles[i].t / gran) % step === 0) {
+    const x = Math.round(X(i)) + .5; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, PH); g.stroke();
+    g.fillText(new Date(candles[i].t * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }), x, PH + TB / 2);
+  }
+  g.textAlign = 'left';
+  const grid = (P, cnt, d) => {
+    const st = nice((P.hi - P.lo) / cnt);
+    for (let v = Math.ceil(P.lo / st) * st; v <= P.hi; v += st) {
+      const y = Math.round(P.Y(v)) + .5; if (y < P.y0 + P.top - 4 || y > P.y0 + P.h) continue;
+      g.strokeStyle = COL.grid; g.beginPath(); g.moveTo(0, y); g.lineTo(PW, y); g.stroke(); g.fillStyle = COL.axis; g.fillText(v.toFixed(d), PW + 6, y);
+    }
+  };
+  grid(M, 6, dec); grid(MA, 2, dec); grid(AD, 2, 0); grid(RS, 2, 0);
+  g.strokeStyle = COL.sep; g.beginPath();
+  [MA, AD, RS].forEach(P => { g.moveTo(0, P.y0 + .5); g.lineTo(W, P.y0 + .5); });
+  g.moveTo(PW + .5, 0); g.lineTo(PW + .5, PH); g.moveTo(0, PH + .5); g.lineTo(W, PH + .5); g.stroke();
+
+  const clip = (P, fn) => { g.save(); g.beginPath(); g.rect(0, P.y0, PW, P.h); g.clip(); fn(); g.restore(); };
+  const line = (P, arr, col, w = 1, key) => {
+    g.strokeStyle = col; g.lineWidth = w; g.beginPath(); let on = false;
+    for (let i = s0; i < N; i++) {
+      let v = arr[i]; if (v != null && key) v = v[key];
+      if (v == null || !isFinite(v)) { on = false; continue; }
+      on ? g.lineTo(X(i), P.Y(v)) : g.moveTo(X(i), P.Y(v)); on = true;
+    }
+    g.stroke(); g.lineWidth = 1;
+  };
+  const hline = (P, v, col, dash, w = 1) => { g.strokeStyle = col; g.lineWidth = w; g.setLineDash(dash || []); const y = Math.round(P.Y(v)) + .5; g.beginPath(); g.moveTo(0, y); g.lineTo(PW, y); g.stroke(); g.setLineDash([]); g.lineWidth = 1; };
+  const bw = Math.max(1, Math.floor(cw * 0.62));
+
+  clip(M, () => {
+    const pts = []; for (let i = s0; i < N; i++) if (I.bb[i]) pts.push(i);
+    if (pts.length > 1) {
+      g.fillStyle = 'rgba(47,191,160,0.07)'; g.beginPath();
+      pts.forEach((i, k) => k ? g.lineTo(X(i), M.Y(I.bb[i].u)) : g.moveTo(X(i), M.Y(I.bb[i].u)));
+      [...pts].reverse().forEach(i => g.lineTo(X(i), M.Y(I.bb[i].l))); g.closePath(); g.fill();
+    }
+    line(M, I.bb, COL.bb, 1, 'u'); line(M, I.bb, COL.bb, 1, 'l'); line(M, I.bb, COL.basis, 1, 'm');
+    line(M, I.e50, COL.e50, 1.5); line(M, I.e34, COL.e34, 1.5); line(M, I.e21, COL.e21, 1.5);
+    for (let i = s0; i < N; i++) {
+      const k = candles[i], x = Math.round(X(i)); g.strokeStyle = g.fillStyle = k.c >= k.o ? COL.up : COL.down;
+      g.beginPath(); g.moveTo(x + .5, M.Y(k.h)); g.lineTo(x + .5, M.Y(k.l)); g.stroke();
+      const y1 = M.Y(Math.max(k.o, k.c)), y2 = M.Y(Math.min(k.o, k.c));
+      g.fillRect(x - Math.floor(bw / 2), y1, bw, Math.max(1, y2 - y1));
+    }
+    if (ptbOn) hline(M, cur.ptb, COL.ptb, [6, 4]);
+    hline(M, candles[L].c, COL.last, [2, 3]);
+  });
+  clip(MA, () => {
+    const z = MA.Y(0);
+    for (let i = s0; i < N; i++) {
+      const h = I.hist[i], p = I.hist[i - 1] ?? 0, y = MA.Y(h);
+      g.fillStyle = h >= 0 ? (h >= p ? COL.h1 : COL.h2) : (h <= p ? COL.d1 : COL.d2);
+      g.fillRect(Math.round(X(i)) - Math.floor(bw / 2), Math.min(y, z), bw, Math.max(1, Math.abs(y - z)));
+    }
+    line(MA, I.macd, COL.macd, 1.5); line(MA, I.sig, COL.sig, 1.5);
+  });
+  clip(AD, () => { hline(AD, 20, COL.hl, null, 1.5); line(AD, I.pdi, COL.pdi, 1.2); line(AD, I.ndi, COL.ndi, 1.2); line(AD, I.adx, COL.adx, 1.5); });
+  clip(RS, () => {
+    g.fillStyle = 'rgba(63,184,224,0.06)'; g.fillRect(0, RS.Y(70), PW, RS.Y(30) - RS.Y(70));
+    hline(RS, 70, COL.axis, [4, 4]); hline(RS, 30, COL.axis, [4, 4]); line(RS, I.rsi, COL.rsi, 1.5);
+  });
+
+  // legends (values follow the crosshair, like Webull)
+  const legend = (P, parts, dy = 10) => { let x = 8; parts.forEach(([t, c]) => { g.fillStyle = c; g.fillText(t, x, P.y0 + dy); x += g.measureText(t).width + 8; }); };
+  const k = candles[j], dc = k.c >= k.o ? COL.up : COL.down;
+  legend(M, [[`${asset}USD · ${gran / 60}m`, COL.adx], ['O', COL.axis], [f(k.o, dec), dc], ['H', COL.axis], [f(k.h, dec), dc], ['L', COL.axis], [f(k.l, dec), dc], ['C', COL.axis], [f(k.c, dec), dc]]);
+  legend(M, [['BB (20,2)', COL.axis], [f(I.bb[j]?.m, dec), COL.basis], [f(I.bb[j]?.u, dec), COL.bb], [f(I.bb[j]?.l, dec), COL.bb], ['EMA', COL.axis], ['21: ' + f(I.e21[j], dec), COL.e21], ['34: ' + f(I.e34[j], dec), COL.e34], ['50: ' + f(I.e50[j], dec), COL.e50]], 26);
+  legend(MA, [['MACD (2,7,13)', COL.adx], ['Hist: ' + f(I.hist[j], dec), I.hist[j] >= 0 ? COL.h1 : COL.d1], ['CCC: ' + f(I.macd[j], dec), COL.macd], ['signal: ' + f(I.sig[j], dec), COL.sig]]);
+  legend(AD, [['ADX & DI (15,15)', COL.adx], ['DI+: ' + f(I.pdi[j]), COL.pdi], ['DI-: ' + f(I.ndi[j]), COL.ndi], ['ADX: ' + f(I.adx[j]), COL.adx], ['HLine: 20.00', COL.hl]]);
+  legend(RS, [['RSI (7)', COL.adx], ['Upper Band: 70.00', COL.axis], ['Lower Band: 30.00', COL.axis], ['RSI: ' + f(I.rsi[j]), COL.rsi]]);
+
+  // colored value tags on the right axis
+  const tags = (P, list) => {
+    list = list.filter(t => t[0] != null && isFinite(t[0])).map(([v, c, d]) => ({ y: P.Y(v), v, c, d }))
+      .filter(t => t.y >= P.y0 + 6 && t.y <= P.y0 + P.h - 6).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < list.length; i++) list[i].y = Math.max(list[i].y, list[i - 1].y + 15);
+    list.forEach(t => { g.fillStyle = t.c; g.fillRect(PW + 1, t.y - 7, AX - 2, 14); g.fillStyle = ink(t.c); g.fillText(t.v.toFixed(t.d), PW + 6, t.y); });
+  };
+  tags(M, [[I.bb[L]?.u, COL.bb, dec], [I.bb[L]?.l, COL.bb, dec], [I.e21[L], COL.e21, dec], [I.e34[L], COL.e34, dec], [I.e50[L], COL.e50, dec], [ptbOn ? cur.ptb : null, COL.ptb, dec], [candles[L].c, COL.last, dec]]);
+  tags(MA, [[I.macd[L], COL.macd, dec], [I.sig[L], COL.sig, dec]]);
+  tags(AD, [[I.pdi[L], COL.pdi, 2], [I.ndi[L], COL.ndi, 2], [I.adx[L], COL.adx, 2], [20, COL.hl, 0]]);
+  tags(RS, [[70, '#555b63', 0], [30, '#555b63', 0], [I.rsi[L], COL.rsi, 2]]);
+
+  // crosshair + tooltip
+  if (hv != null) {
+    const x = Math.round(X(hv)) + .5;
+    g.strokeStyle = '#6b7079'; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, PH); g.moveTo(0, hover.y + .5); g.lineTo(PW, hover.y + .5); g.stroke(); g.setLineDash([]);
+    const P = panes.find(p => hover.y >= p.y0 && hover.y < p.y0 + p.h);
+    if (P) { g.fillStyle = '#3a3f46'; g.fillRect(PW + 1, hover.y - 8, AX - 2, 16); g.fillStyle = '#fff'; g.fillText(P.V(hover.y).toFixed(P === M || P === MA ? dec : 2), PW + 6, hover.y); }
+    const tl = new Date(k.t * 1000).toLocaleString([], { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+    const tw = g.measureText(tl).width + 12;
+    g.fillStyle = '#3a3f46'; g.fillRect(x - tw / 2, PH + 2, tw, TB - 4); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(tl, x, PH + TB / 2); g.textAlign = 'left';
+    const prev = candles[hv - 1], chg = prev ? k.c - prev.c : 0, b = I.bb[hv];
+    const rows = [[tl, '', COL.adx], ['Open', f(k.o, dec), dc], ['High', f(k.h, dec), COL.up], ['Low', f(k.l, dec), COL.down], ['Close', f(k.c, dec), dc],
+      ['Change', `${chg >= 0 ? '+' : ''}${f(chg, dec)} (${prev ? f(chg / prev.c * 100) : '0.00'}%)`, chg >= 0 ? COL.up : COL.down],
+      ['BB', '', COL.adx], ['Basis Band', f(b?.m, dec), COL.basis], ['Upper Band', f(b?.u, dec), COL.bb], ['Lower Band', f(b?.l, dec), COL.bb],
+      ['EMA', '', COL.adx], ['EMA21', f(I.e21[hv], dec), COL.e21], ['EMA34', f(I.e34[hv], dec), COL.e34], ['EMA50', f(I.e50[hv], dec), COL.e50]];
+    const bw2 = 190, bh = rows.length * 15 + 8, by = 44; let bx = x + 14; if (bx + bw2 > PW) bx = x - 14 - bw2;
+    g.fillStyle = 'rgba(30,33,37,0.95)'; g.fillRect(bx, by, bw2, bh);
+    rows.forEach(([l, v, c], r) => {
+      const y = by + 11 + r * 15; g.fillStyle = v ? COL.axis : COL.adx; g.fillText(v ? l + ':' : l, bx + 8, y);
+      g.fillStyle = c; g.textAlign = 'right'; g.fillText(v, bx + bw2 - 8, y); g.textAlign = 'left';
+    });
+  }
+}
+
+function tick() {
+  if (!cur) return;
+  const now = Date.now() / 1000, left = Math.max(0, cur.end - now);
+  const S = priceAt(0) ?? candles[candles.length - 1]?.c, K = cur.ptb, mkt = marketUp();
+  if (S && cur.end - now > -2) for (const p of acct.positions) if (p.slug === cur.slug && now >= p.end && !p.finalPx) { p.finalPx = S; p.ptb = p.ptb || K; save(); }
+  const d = S ? (S > 100 ? 2 : 4) : 2;
+  $('ptb').textContent = K ? fmt$(K, d) : '–'; $('ptb').title = cur.ptbSource || '';
+  $('px').textContent = S ? fmt$(S, d) : '–'; $('px').className = 'v ' + (S && K ? (S >= K ? 'u' : 'd') : '');
+  $('upc').textContent = pct(mkt);
+  $('dnc').textContent = pct(mkt == null ? null : 1 - mkt);
+  $('countv').textContent = `${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`;
+  $('count').className = 'count' + (left <= 15 ? ' hot' : left <= 60 ? ' warn' : '');
+  renderQuote(); renderMyPos(); drawChart();
+}
+
+// ---------- wiring ----------
+$('assets').innerHTML = Object.keys(ASSETS).map(a => `<button data-a="${a}" class="${a === asset ? 'on' : ''}">${a}</button>`).join('');
+$('assets').onclick = e => { const a = e.target.dataset.a; if (!a || a === asset) return; asset = a; document.querySelectorAll('#assets button').forEach(b => b.classList.toggle('on', b.dataset.a === a)); start(); };
+document.querySelector('.sides').onclick = e => { const b = e.target.closest('.side'); if (!b) return; side = +b.dataset.s; document.querySelectorAll('.side').forEach(x => x.classList.toggle('on', x === b)); renderQuote(); if ($('oneclick').checked) trade(); };
+$('oneclick').onchange = () => { $('ocLabel').classList.toggle('on', $('oneclick').checked); try { localStorage.setItem(KEY + '-oc', $('oneclick').checked ? '1' : ''); } catch {} };
+try { $('oneclick').checked = !!localStorage.getItem(KEY + '-oc'); $('oneclick').onchange(); } catch {}
+$('mode').onclick = e => { const m = e.target.dataset.m; if (!m) return; mode = m; document.querySelectorAll('#mode button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); $('amtLabel').textContent = m === 'buy' ? 'Amount ($)' : 'Shares'; renderQuote(); };
+document.querySelectorAll('.tabs [data-t]').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs [data-t]').forEach(x => x.classList.toggle('on', x === b)); ['pos', 'hist', 'book'].forEach(t => $('t-' + t).hidden = t !== b.dataset.t); });
+$('quick').innerHTML = ['+1', '+10', '+100', 'Max'].map(q => `<button>${q}</button>`).join('');
+$('quick').onclick = e => {
+  const q = e.target.textContent; if (!q || e.target.tagName !== 'BUTTON') return;
+  if (q === 'Max') { const p = acct.positions.find(p => cur && p.slug === cur.slug && p.side === side); $('amt').value = mode === 'buy' ? Math.floor(acct.cash * 100) / 100 : (p ? +p.shares.toFixed(4) : 0); }
+  else $('amt').value = (Number($('amt').value) || 0) + Number(q);
+  renderQuote();
+};
+$('amt').oninput = renderQuote;
+$('go').onclick = trade;
+// phone: Chart / Positions / History / Book switch the middle of the screen
+$('mnav').onclick = e => {
+  const v = e.target.dataset.v; if (!v) return;
+  document.querySelectorAll('#mnav button').forEach(b => b.classList.toggle('on', b === e.target));
+  document.body.classList.toggle('v-list', v !== 'chart');
+  document.body.classList.toggle('v-pos', v === 'pos');
+  if (v === 'chart') return requestAnimationFrame(drawChart);
+  if (v === 'pos') $('listCard').appendChild($('statsCard'));
+  document.querySelector(`.tabs [data-t="${v}"]`).click();
+};
+// pointerdown, not click: the rows re-render every second and would swallow a click
+document.addEventListener('pointerdown', e => {
+  const b = e.target.closest('.sellbtn'); if (!b) return;
+  const pos = acct.positions[+b.dataset.i];
+  if (pos) $('msg').textContent = sellPos(pos, pos.shares);
+});
+$('depositBtn').onclick = () => { const v = Number(prompt('Deposit amount ($)', '1000')); if (v > 0) { acct.cash += v; acct.deposited += v; save(); renderAccount(); } };
+$('resetBtn').onclick = () => { if (confirm('Wipe balance, positions and history?')) { acct = { cash: 0, deposited: 0, positions: [], history: [] }; save(); renderAccount(); } };
+addEventListener('resize', drawChart);
+$('tf').innerHTML = [['1m', 60], ['5m', 300], ['15m', 900]].map(([l, s]) => `<button data-g="${s}" class="${s === gran ? 'on' : ''}">${l}</button>`).join('');
+$('tf').onclick = e => { const s = +e.target.dataset.g; if (!s || s === gran) return; gran = s; document.querySelectorAll('#tf button').forEach(b => b.classList.toggle('on', +b.dataset.g === s)); candles = []; loadCandles(); };
+const chartEl = $('chart');
+chartEl.onmousemove = e => { const r = chartEl.getBoundingClientRect(); hover = { x: e.clientX - r.left, y: e.clientY - r.top }; drawChart(); };
+chartEl.onmouseleave = () => { hover = null; drawChart(); };
+chartEl.addEventListener('wheel', e => { e.preventDefault(); view = Math.max(15, Math.min(250, Math.round(view * (e.deltaY > 0 ? 1.15 : 0.87)))); drawChart(); }, { passive: false });
+
+let roundTimer;
+async function start() {
+  cur = null; $('title').textContent = 'Loading…';
+  candles = []; connectPrice(); loadCandles();
+  clearTimeout(roundTimer);
+  const go = () => {
+    newRound(); pollBooks();
+    // next round exactly when this one ends
+    roundTimer = setTimeout(go, (cur.end - Date.now() / 1000) * 1000 + 200);
+  };
+  go();
+}
+
+start(); renderAccount();
+setInterval(pollBooks, 1000);
+setInterval(tick, 250);
+setInterval(settle, 10000);
+setInterval(renderAccount, 1000);
+setInterval(loadCandles, 30000);
+</script>
+</body>
+</html>
